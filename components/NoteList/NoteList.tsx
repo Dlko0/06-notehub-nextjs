@@ -10,16 +10,15 @@ import styles from "./NoteList.module.css";
 interface NoteListProps {
   notes: Note[];
   loading?: boolean;
-  onOpen: (note: Note) => void;
 }
 
-export function NoteList({ notes, loading, onOpen }: NoteListProps) {
+export function NoteList({ notes, loading }: NoteListProps) {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: deleteNote,
     onSuccess: (_data, id: string) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.removeQueries({ queryKey: ["notes", id] });
+      queryClient.removeQueries({ queryKey: ["note", id] });
     },
   });
 
@@ -49,11 +48,7 @@ export function NoteList({ notes, loading, onOpen }: NoteListProps) {
     <div className={styles.grid}>
       {notes.map((note) => (
         <article className={styles.card} key={note.id}>
-          <button
-            className={styles.open}
-            type="button"
-            onClick={() => onOpen(note)}
-          >
+          <div className={styles.open}>
             <h3>{note.title}</h3>
             <p>{note.content}</p>
             <span className={styles.tag}>{note.tag}</span>
@@ -62,7 +57,7 @@ export function NoteList({ notes, loading, onOpen }: NoteListProps) {
                 new Date(note.createdAt),
               )}
             </time>
-          </button>
+          </div>
           <div className={styles.actions}>
             <Link className={styles.details} href={`/notes/${note.id}`}>
               View details

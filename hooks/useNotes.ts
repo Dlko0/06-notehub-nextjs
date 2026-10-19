@@ -15,7 +15,7 @@ export function useNotes(page: number, perPage: number, search: string) {
 
 export function useNote(id: string) {
   return useQuery({
-    queryKey: [...NOTES_KEY, id],
+    queryKey: ["note", id],
     queryFn: () => fetchNoteById(id),
     enabled: Boolean(id),
   });
@@ -39,7 +39,7 @@ export function useUpdateNote() {
       updateNote(id, payload),
     onSuccess: (_note: Note, variables) => {
       queryClient.invalidateQueries({ queryKey: NOTES_KEY });
-      queryClient.invalidateQueries({ queryKey: [...NOTES_KEY, variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["note", variables.id] });
     },
   });
 }

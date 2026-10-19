@@ -9,7 +9,6 @@ import { NoteList } from "@/components/NoteList/NoteList";
 import { Pagination } from "@/components/Pagination/Pagination";
 import { SearchBox } from "@/components/SearchBox/SearchBox";
 import { useNotes } from "@/hooks/useNotes";
-import type { Note } from "@/types/note";
 import styles from "./Notes.module.css";
 
 const PER_PAGE = 9;
@@ -18,8 +17,7 @@ export function NotesClient() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [modal, setModal] = useState<"create" | "edit" | null>(null);
-  const [selectedNote, setSelectedNote] = useState<Note | undefined>();
+  const [modalOpen, setModalOpen] = useState(false);
   const notesQuery = useNotes(page, PER_PAGE, debouncedSearch);
 
   const debouncedSetSearch = useDebouncedCallback((value: string) => {
@@ -31,19 +29,8 @@ export function NotesClient() {
     debouncedSetSearch(search);
   }, [search, debouncedSetSearch]);
 
-  const openCreate = () => {
-    setSelectedNote(undefined);
-    setModal("create");
-  };
-
-  const openEdit = (note: Note) => {
-    setSelectedNote(note);
-    setModal("edit");
-  };
-
   const closeModal = useCallback(() => {
-    setModal(null);
-    setSelectedNote(undefined);
+    setModalOpen(false);
   }, []);
 
   return (
@@ -57,7 +44,7 @@ export function NotesClient() {
           <button
             className={styles.primaryButton}
             type="button"
-            onClick={openCreate}
+            onClick={() => setModalOpen(true)}
           >
             + New note
           </button>
@@ -75,12 +62,8 @@ export function NotesClient() {
             Unable to load notes. Please try again.
           </p>
         )}
-        {notesQuery.isLoading && (
-          <NoteList notes={[]} loading onOpen={openEdit} />
-        )}
-        {notesQuery.data && (
-          <NoteList notes={notesQuery.data.notes} onOpen={openEdit} />
-        )}
+        {notesQuery.isLoading && <NoteList notes={[]} loading />}
+        {notesQuery.data && <NoteList notes={notesQuery.data.notes} />}
         {notesQuery.data && notesQuery.data.totalPages > 1 && (
           <Pagination
             page={notesQuery.data.page}
@@ -90,12 +73,8 @@ export function NotesClient() {
         )}
       </div>
 
-      <Modal
-        open={modal !== null}
-        title={modal === "edit" ? "Edit note" : "Create note"}
-        onClose={closeModal}
-      >
-        <NoteForm note={selectedNote} onCancel={closeModal} />
+      <Modal open={modalOpen} title="Create note" onClose={closeModal}>
+        <NoteForm onCancel={closeModal} />
       </Modal>
       <Toaster position="top-right" />
     </main>

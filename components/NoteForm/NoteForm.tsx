@@ -4,13 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Formik, type FormikHelpers } from "formik";
 import { toast } from "react-hot-toast";
 import * as Yup from "yup";
-import { createNote, updateNote } from "../../lib/api";
-import type { Note, NotePayload } from "../../types/note";
+import { createNote } from "../../lib/api";
+import type { NotePayload } from "../../types/note";
 import { ErrorMessage } from "../ErrorMessage/ErrorMessage";
 import styles from "./NoteForm.module.css";
 
 interface NoteFormProps {
-  note?: Note;
   onCancel: () => void;
 }
 
@@ -35,11 +34,10 @@ const schema = Yup.object({
     .required("Tag is required"),
 });
 
-export function NoteForm({ note, onCancel }: NoteFormProps) {
+export function NoteForm({ onCancel }: NoteFormProps) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: (payload: NotePayload) =>
-      note ? updateNote(note.id, payload) : createNote(payload),
+    mutationFn: createNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
@@ -48,9 +46,9 @@ export function NoteForm({ note, onCancel }: NoteFormProps) {
   return (
     <Formik
       initialValues={{
-        title: note?.title ?? "",
-        content: note?.content ?? "",
-        tag: note?.tag ?? "",
+        title: "",
+        content: "",
+        tag: "",
       }}
       validationSchema={schema}
       onSubmit={async (
@@ -64,7 +62,7 @@ export function NoteForm({ note, onCancel }: NoteFormProps) {
             tag: values.tag,
           };
           await mutation.mutateAsync(payload);
-          toast.success(note ? "Note updated" : "Note created");
+          toast.success("Note created");
           onCancel();
         } catch (error) {
           helpers.setStatus({
@@ -146,11 +144,7 @@ export function NoteForm({ note, onCancel }: NoteFormProps) {
               className={styles.primaryButton}
               disabled={submitting || mutation.isPending}
             >
-              {submitting || mutation.isPending
-                ? "Saving..."
-                : note
-                  ? "Save changes"
-                  : "Create note"}
+              {submitting || mutation.isPending ? "Saving..." : "Create note"}
             </button>
           </div>
         </form>

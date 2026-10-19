@@ -18,11 +18,8 @@
 .open {
   flex: 1;
   padding: 1.15rem;
-  border: 0;
-  background: transparent;
   color: inherit;
   text-align: left;
-  cursor: pointer;
 }
 
 .open h3 {

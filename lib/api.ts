@@ -107,7 +107,7 @@ export async function updateNote(
   id: string,
   payload: NotePayload,
 ): Promise<Note> {
-  const response = await api.put<Note>(
+  const response = await api.patch<Note>(
     `/notes/${encodeURIComponent(id)}`,
     payload,
   );
