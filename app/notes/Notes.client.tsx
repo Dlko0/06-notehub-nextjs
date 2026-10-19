@@ -73,9 +73,11 @@ export function NotesClient() {
         )}
       </div>
 
-      <Modal open={modalOpen} title="Create note" onClose={closeModal}>
-        <NoteForm onCancel={closeModal} />
-      </Modal>
+      {modalOpen && (
+        <Modal open title="Create note" onClose={closeModal}>
+          <NoteForm onCancel={closeModal} />
+        </Modal>
+      )}
       <Toaster position="top-right" />
     </main>
   );
